@@ -2,27 +2,23 @@
 #
 # https://gqlgen.com/getting-started/
 
-type Todo {
-  id: ID!
-  text: String!
-  done: Boolean!
-  user: User!
+type Origin {
+	id: ID!
+	index_cid: String!
+	name: String!
+	description: String!
 }
 
-type User {
-  id: ID!
-  name: String!
+type Media {
+	id: ID!
+	cid: String!
+	file_type: String!
+	caption: String!
+	tags: [String!]!
+	star: Boolean!
+	pin: Boolean!
 }
 
 type Query {
-  todos: [Todo!]!
-}
-
-input NewTodo {
-  text: String!
-  userId: String!
-}
-
-type Mutation {
-  createTodo(input: NewTodo!): Todo!
+  scan(origin_ids: [ID!], query: String!, only_starred: Boolean): [Media!]!
 }

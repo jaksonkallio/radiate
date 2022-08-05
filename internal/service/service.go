@@ -1,3 +1,6 @@
+// Service logic.
+//
+// Credit to https://gqlgen.com/recipes/gin/ for the handler functions.
 package service
 
 import (
@@ -41,10 +44,8 @@ func (service *Service) Serve() {
 	http.ListenAndServe(":5011", service.gin)
 }
 
-// Defining the Graphql handler
+// Defining the Graphql handler.
 func graphqlHandler() gin.HandlerFunc {
-	// NewExecutableSchema and Config are in the generated.go file
-	// Resolver is in the resolver.go file
 	h := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
 
 	return func(c *gin.Context) {
@@ -52,7 +53,7 @@ func graphqlHandler() gin.HandlerFunc {
 	}
 }
 
-// Defining the Playground handler
+// Defining the Playground handler.
 func playgroundHandler() gin.HandlerFunc {
 	h := playground.Handler("GraphQL", "/query")
 

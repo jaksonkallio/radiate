@@ -2,19 +2,19 @@
 
 package model
 
-type NewTodo struct {
-	Text   string `json:"text"`
-	UserID string `json:"userId"`
+type Media struct {
+	ID       string   `json:"id"`
+	Cid      string   `json:"cid"`
+	FileType string   `json:"file_type"`
+	Caption  string   `json:"caption"`
+	Tags     []string `json:"tags"`
+	Star     bool     `json:"star"`
+	Pin      bool     `json:"pin"`
 }
 
-type Todo struct {
-	ID   string `json:"id"`
-	Text string `json:"text"`
-	Done bool   `json:"done"`
-	User *User  `json:"user"`
-}
-
-type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+type Origin struct {
+	ID          string `json:"id"`
+	IndexCid    string `json:"index_cid"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
