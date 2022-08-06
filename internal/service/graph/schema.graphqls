@@ -2,21 +2,22 @@
 #
 # https://gqlgen.com/getting-started/
 
-type Origin {
+type Library {
 	id: ID!
-	index_cid: String!
 	name: String!
 	description: String!
+	motd: String
+	ipns_id: String!
 }
 
 type Media {
 	id: ID!
-	cid: String!
-	file_type: String!
-	caption: String!
+	ipfs_cid: String!
+	extension: String!
+	description: String!
 	tags: [String!]!
-	star: Boolean!
-	pin: Boolean!
+	starred: Boolean!
+	pinned: Boolean!
 }
 
 type Query {
