@@ -36,6 +36,12 @@ func (library *Library) Ingest() error {
 
 	// Ingesting this library complete, mark as no longer currently ingesting.
 	LibraryIngesting[library.ID] = false
+
+	return nil
+}
+
+func (library *Library) FetchIndex() (*LibraryIndex, error) {
+	return nil, nil
 }
 
 // Tells us whether a library is currently in the process of ingesting.
@@ -70,8 +76,7 @@ func FindOrInitializeLibraryByIPNSID(IPNSID string) (*Library, error) {
 		library = &Library{
 			InitialIngest: false,
 		}
-
 	}
 
-	return library
+	return library, nil
 }
