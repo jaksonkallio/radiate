@@ -5,6 +5,7 @@ import (
 
 	"github.com/jaksonkallio/radiate/internal/media"
 	"github.com/jaksonkallio/radiate/internal/service"
+	"github.com/jaksonkallio/radiate/pkg/ipfs_client"
 )
 
 func main() {
@@ -13,14 +14,15 @@ func main() {
 		log.Fatalf("Could not initialize database connection: %s", err)
 	}
 
-	service, err := service.NewService()
+	// TODO: make this host string configurable.
+	clientIPFS, err := ipfs_client.NewClientIPFS("localhost:5001")
 	if err != nil {
-		log.Fatalf("Could not start service: %s", err)
+		log.Fatalf("Could not create IPFS client: %s", err)
 	}
 
-	err = media.InitIPFSClient()
+	service, err := service.NewService(clientIPFS)
 	if err != nil {
-		log.Fatalf("Could not initialize IPFS client: %s", err)
+		log.Fatalf("Could not start service: %s", err)
 	}
 
 	service.Serve()

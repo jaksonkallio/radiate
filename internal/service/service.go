@@ -12,13 +12,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jaksonkallio/radiate/internal/service/graph"
 	"github.com/jaksonkallio/radiate/internal/service/graph/generated"
+	"github.com/jaksonkallio/radiate/pkg/ipfs_client"
 )
 
 type Service struct {
-	gin *gin.Engine
+	gin        *gin.Engine
+	clientIPFS *ipfs_client.ClientIPFS
 }
 
-func NewService() (*Service, error) {
+func NewService(clientIPFS *ipfs_client.ClientIPFS) (*Service, error) {
 	service := &Service{}
 	err := service.Init()
 
