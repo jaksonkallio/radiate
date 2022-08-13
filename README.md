@@ -1,2 +1,2 @@
 # Radiate
-*Decentralized media libraries hosted via IPFS*
+*Decentralized user-created media libraries hosted via IPFS.*
