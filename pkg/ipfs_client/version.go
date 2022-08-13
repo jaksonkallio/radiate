@@ -1,8 +1,11 @@
 package ipfs_client
 
-import "encoding/json"
+import (
+	"bytes"
+	"encoding/json"
+)
 
-type VersionResponse struct {
+type Version struct {
 	Commit  string
 	Golang  string
 	Repo    string
@@ -10,13 +13,13 @@ type VersionResponse struct {
 	Version string
 }
 
-func (clientIPFS *ClientIPFS) Version() (*VersionResponse, error) {
-	data, err := clientIPFS.request("version", map[string]string{})
+func (clientIPFS *ClientIPFS) Version() (*Version, error) {
+	data, err := clientIPFS.request("version", map[string]string{}, &bytes.Buffer{})
 	if err != nil {
 		return nil, err
 	}
 
-	versionResponse := &VersionResponse{}
+	versionResponse := &Version{}
 	json.Unmarshal(data, versionResponse)
 
 	return versionResponse, nil
