@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@500;800&display=swap');
+
+/*
+
+Colors: https://coolors.co/palette/03071e-370617-6a040f-9d0208-d00000-dc2f02-e85d04-f48c06-faa307-ffba08
+
+*/
+
+/* -- Global: Margin -- */
+body,
+div {
+	margin: 0;
+	padding: 0;
+}
+
+
+/* -- Global: Border Box -- */
+* {
+	box-sizing: border-box;
+}
+
+
+/* -- Body -- */
+body {
+	background: #03071E;
+}
+
+
+/* Links */
+a {
+	text-decoration: none;
+	color: inherit;
+}
+
+
+/* -- Global: Font -- */
+html,
+textarea,
+input,
+select,
+select option,
+input,
+button,
+textarea,
+.text {
+	font-family: 'Barlow', sans-serif;
+	font-size: 16px;
+	color: #FFFFFF;
+}

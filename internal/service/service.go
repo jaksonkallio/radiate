@@ -12,15 +12,18 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jaksonkallio/radiate/internal/service/graph"
 	"github.com/jaksonkallio/radiate/internal/service/graph/generated"
-	"github.com/jaksonkallio/radiate/pkg/ipfs_client"
+
+	ipfsapi "github.com/ipfs/go-ipfs-api"
 )
 
+var ServerSideRenderedBundle = ""
+
 type Service struct {
-	gin        *gin.Engine
-	clientIPFS *ipfs_client.ClientIPFS
+	gin       *gin.Engine
+	shellIPFS *ipfsapi.Shell
 }
 
-func NewService(clientIPFS *ipfs_client.ClientIPFS) (*Service, error) {
+func NewService(clientIPFS *ipfsapi.Shell) (*Service, error) {
 	service := &Service{}
 	err := service.Init()
 
@@ -36,8 +39,14 @@ func (service *Service) Init() error {
 
 	service.gin = gin.Default()
 
+	// All static files are accessible at `/static`
+	service.gin.Static("/static", "./frontend/dist")
+
+	// The index file is accessible at the root
+	service.gin.StaticFile("/", "./frontend/dist/index.html")
+
 	service.gin.POST("/query", graphqlHandler())
-	service.gin.GET("/", playgroundHandler())
+	service.gin.GET("/playground", playgroundHandler())
 
 	return nil
 }

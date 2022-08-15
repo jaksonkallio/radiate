@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"strconv"
 	"sync"
-	"sync/atomic"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -43,30 +42,31 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	Media struct {
-		Caption  func(childComplexity int) int
-		Cid      func(childComplexity int) int
-		FileType func(childComplexity int) int
-		ID       func(childComplexity int) int
-		Pin      func(childComplexity int) int
-		Star     func(childComplexity int) int
-		Tags     func(childComplexity int) int
-	}
-
-	Origin struct {
+	Library struct {
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
-		IndexCid    func(childComplexity int) int
+		IpnsID      func(childComplexity int) int
+		Motd        func(childComplexity int) int
 		Name        func(childComplexity int) int
 	}
 
+	Media struct {
+		Description func(childComplexity int) int
+		Extension   func(childComplexity int) int
+		ID          func(childComplexity int) int
+		IpfsCid     func(childComplexity int) int
+		Pinned      func(childComplexity int) int
+		Starred     func(childComplexity int) int
+		Tags        func(childComplexity int) int
+	}
+
 	Query struct {
-		Scan func(childComplexity int, originIds []string, query string, onlyStarred *bool) int
+		Search func(childComplexity int, originIds []string, query string, onlyStarred *bool) int
 	}
 }
 
 type QueryResolver interface {
-	Scan(ctx context.Context, originIds []string, query string, onlyStarred *bool) ([]*model.Media, error)
+	Search(ctx context.Context, originIds []string, query string, onlyStarred *bool) ([]*model.Media, error)
 }
 
 type executableSchema struct {
@@ -84,26 +84,54 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "Media.caption":
-		if e.complexity.Media.Caption == nil {
+	case "Library.description":
+		if e.complexity.Library.Description == nil {
 			break
 		}
 
-		return e.complexity.Media.Caption(childComplexity), true
+		return e.complexity.Library.Description(childComplexity), true
 
-	case "Media.cid":
-		if e.complexity.Media.Cid == nil {
+	case "Library.id":
+		if e.complexity.Library.ID == nil {
 			break
 		}
 
-		return e.complexity.Media.Cid(childComplexity), true
+		return e.complexity.Library.ID(childComplexity), true
 
-	case "Media.file_type":
-		if e.complexity.Media.FileType == nil {
+	case "Library.ipns_id":
+		if e.complexity.Library.IpnsID == nil {
 			break
 		}
 
-		return e.complexity.Media.FileType(childComplexity), true
+		return e.complexity.Library.IpnsID(childComplexity), true
+
+	case "Library.motd":
+		if e.complexity.Library.Motd == nil {
+			break
+		}
+
+		return e.complexity.Library.Motd(childComplexity), true
+
+	case "Library.name":
+		if e.complexity.Library.Name == nil {
+			break
+		}
+
+		return e.complexity.Library.Name(childComplexity), true
+
+	case "Media.description":
+		if e.complexity.Media.Description == nil {
+			break
+		}
+
+		return e.complexity.Media.Description(childComplexity), true
+
+	case "Media.extension":
+		if e.complexity.Media.Extension == nil {
+			break
+		}
+
+		return e.complexity.Media.Extension(childComplexity), true
 
 	case "Media.id":
 		if e.complexity.Media.ID == nil {
@@ -112,19 +140,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Media.ID(childComplexity), true
 
-	case "Media.pin":
-		if e.complexity.Media.Pin == nil {
+	case "Media.ipfs_cid":
+		if e.complexity.Media.IpfsCid == nil {
 			break
 		}
 
-		return e.complexity.Media.Pin(childComplexity), true
+		return e.complexity.Media.IpfsCid(childComplexity), true
 
-	case "Media.star":
-		if e.complexity.Media.Star == nil {
+	case "Media.pinned":
+		if e.complexity.Media.Pinned == nil {
 			break
 		}
 
-		return e.complexity.Media.Star(childComplexity), true
+		return e.complexity.Media.Pinned(childComplexity), true
+
+	case "Media.starred":
+		if e.complexity.Media.Starred == nil {
+			break
+		}
+
+		return e.complexity.Media.Starred(childComplexity), true
 
 	case "Media.tags":
 		if e.complexity.Media.Tags == nil {
@@ -133,45 +168,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Media.Tags(childComplexity), true
 
-	case "Origin.description":
-		if e.complexity.Origin.Description == nil {
+	case "Query.search":
+		if e.complexity.Query.Search == nil {
 			break
 		}
 
-		return e.complexity.Origin.Description(childComplexity), true
-
-	case "Origin.id":
-		if e.complexity.Origin.ID == nil {
-			break
-		}
-
-		return e.complexity.Origin.ID(childComplexity), true
-
-	case "Origin.index_cid":
-		if e.complexity.Origin.IndexCid == nil {
-			break
-		}
-
-		return e.complexity.Origin.IndexCid(childComplexity), true
-
-	case "Origin.name":
-		if e.complexity.Origin.Name == nil {
-			break
-		}
-
-		return e.complexity.Origin.Name(childComplexity), true
-
-	case "Query.scan":
-		if e.complexity.Query.Scan == nil {
-			break
-		}
-
-		args, err := ec.field_Query_scan_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_search_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Scan(childComplexity, args["origin_ids"].([]string), args["query"].(string), args["only_starred"].(*bool)), true
+		return e.complexity.Query.Search(childComplexity, args["origin_ids"].([]string), args["query"].(string), args["only_starred"].(*bool)), true
 
 	}
 	return 0, false
@@ -229,25 +236,26 @@ var sources = []*ast.Source{
 #
 # https://gqlgen.com/getting-started/
 
-type Origin {
+type Library {
 	id: ID!
-	index_cid: String!
 	name: String!
 	description: String!
+	motd: String
+	ipns_id: String!
 }
 
 type Media {
 	id: ID!
-	cid: String!
-	file_type: String!
-	caption: String!
-	tags: [String!]!
-	star: Boolean!
-	pin: Boolean!
+	ipfs_cid: String!
+	extension: String!
+	description: String!
+	tags: [String!]
+	starred: Boolean!
+	pinned: Boolean!
 }
 
 type Query {
-  scan(origin_ids: [ID!], query: String!, only_starred: Boolean): [Media!]!
+  search(origin_ids: [ID!], query: String!, only_starred: Boolean): [Media!]
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -271,7 +279,7 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_scan_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_search_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 []string
@@ -342,6 +350,223 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
+func (ec *executionContext) _Library_id(ctx context.Context, field graphql.CollectedField, obj *model.Library) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Library_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Library_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Library",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Library_name(ctx context.Context, field graphql.CollectedField, obj *model.Library) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Library_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Library_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Library",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Library_description(ctx context.Context, field graphql.CollectedField, obj *model.Library) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Library_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Library_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Library",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Library_motd(ctx context.Context, field graphql.CollectedField, obj *model.Library) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Library_motd(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Motd, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Library_motd(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Library",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Library_ipns_id(ctx context.Context, field graphql.CollectedField, obj *model.Library) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Library_ipns_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IpnsID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Library_ipns_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Library",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Media_id(ctx context.Context, field graphql.CollectedField, obj *model.Media) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Media_id(ctx, field)
 	if err != nil {
@@ -386,8 +611,8 @@ func (ec *executionContext) fieldContext_Media_id(ctx context.Context, field gra
 	return fc, nil
 }
 
-func (ec *executionContext) _Media_cid(ctx context.Context, field graphql.CollectedField, obj *model.Media) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Media_cid(ctx, field)
+func (ec *executionContext) _Media_ipfs_cid(ctx context.Context, field graphql.CollectedField, obj *model.Media) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Media_ipfs_cid(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -400,7 +625,7 @@ func (ec *executionContext) _Media_cid(ctx context.Context, field graphql.Collec
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Cid, nil
+		return obj.IpfsCid, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -417,7 +642,7 @@ func (ec *executionContext) _Media_cid(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Media_cid(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Media_ipfs_cid(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Media",
 		Field:      field,
@@ -430,8 +655,8 @@ func (ec *executionContext) fieldContext_Media_cid(ctx context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Media_file_type(ctx context.Context, field graphql.CollectedField, obj *model.Media) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Media_file_type(ctx, field)
+func (ec *executionContext) _Media_extension(ctx context.Context, field graphql.CollectedField, obj *model.Media) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Media_extension(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -444,7 +669,7 @@ func (ec *executionContext) _Media_file_type(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.FileType, nil
+		return obj.Extension, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -461,7 +686,7 @@ func (ec *executionContext) _Media_file_type(ctx context.Context, field graphql.
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Media_file_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Media_extension(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Media",
 		Field:      field,
@@ -474,8 +699,8 @@ func (ec *executionContext) fieldContext_Media_file_type(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Media_caption(ctx context.Context, field graphql.CollectedField, obj *model.Media) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Media_caption(ctx, field)
+func (ec *executionContext) _Media_description(ctx context.Context, field graphql.CollectedField, obj *model.Media) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Media_description(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -488,7 +713,7 @@ func (ec *executionContext) _Media_caption(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Caption, nil
+		return obj.Description, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -505,7 +730,7 @@ func (ec *executionContext) _Media_caption(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Media_caption(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Media_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Media",
 		Field:      field,
@@ -539,14 +764,11 @@ func (ec *executionContext) _Media_tags(ctx context.Context, field graphql.Colle
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Media_tags(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -562,8 +784,8 @@ func (ec *executionContext) fieldContext_Media_tags(ctx context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Media_star(ctx context.Context, field graphql.CollectedField, obj *model.Media) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Media_star(ctx, field)
+func (ec *executionContext) _Media_starred(ctx context.Context, field graphql.CollectedField, obj *model.Media) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Media_starred(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -576,7 +798,7 @@ func (ec *executionContext) _Media_star(ctx context.Context, field graphql.Colle
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Star, nil
+		return obj.Starred, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -593,7 +815,7 @@ func (ec *executionContext) _Media_star(ctx context.Context, field graphql.Colle
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Media_star(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Media_starred(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Media",
 		Field:      field,
@@ -606,8 +828,8 @@ func (ec *executionContext) fieldContext_Media_star(ctx context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Media_pin(ctx context.Context, field graphql.CollectedField, obj *model.Media) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Media_pin(ctx, field)
+func (ec *executionContext) _Media_pinned(ctx context.Context, field graphql.CollectedField, obj *model.Media) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Media_pinned(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -620,7 +842,7 @@ func (ec *executionContext) _Media_pin(ctx context.Context, field graphql.Collec
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Pin, nil
+		return obj.Pinned, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -637,7 +859,7 @@ func (ec *executionContext) _Media_pin(ctx context.Context, field graphql.Collec
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Media_pin(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Media_pinned(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Media",
 		Field:      field,
@@ -650,8 +872,8 @@ func (ec *executionContext) fieldContext_Media_pin(ctx context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Origin_id(ctx context.Context, field graphql.CollectedField, obj *model.Origin) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Origin_id(ctx, field)
+func (ec *executionContext) _Query_search(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_search(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -664,200 +886,21 @@ func (ec *executionContext) _Origin_id(ctx context.Context, field graphql.Collec
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		return ec.resolvers.Query().Search(rctx, fc.Args["origin_ids"].([]string), fc.Args["query"].(string), fc.Args["only_starred"].(*bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Origin_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Origin",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Origin_index_cid(ctx context.Context, field graphql.CollectedField, obj *model.Origin) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Origin_index_cid(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.IndexCid, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Origin_index_cid(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Origin",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Origin_name(ctx context.Context, field graphql.CollectedField, obj *model.Origin) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Origin_name(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Origin_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Origin",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Origin_description(ctx context.Context, field graphql.CollectedField, obj *model.Origin) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Origin_description(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Description, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Origin_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Origin",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_scan(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_scan(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Scan(rctx, fc.Args["origin_ids"].([]string), fc.Args["query"].(string), fc.Args["only_starred"].(*bool))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.([]*model.Media)
 	fc.Result = res
-	return ec.marshalNMedia2ᚕᚖgithubᚗcomᚋjaksonkallioᚋradiateᚋinternalᚋserviceᚋgraphᚋmodelᚐMediaᚄ(ctx, field.Selections, res)
+	return ec.marshalOMedia2ᚕᚖgithubᚗcomᚋjaksonkallioᚋradiateᚋinternalᚋserviceᚋgraphᚋmodelᚐMediaᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_scan(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_search(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -867,18 +910,18 @@ func (ec *executionContext) fieldContext_Query_scan(ctx context.Context, field g
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Media_id(ctx, field)
-			case "cid":
-				return ec.fieldContext_Media_cid(ctx, field)
-			case "file_type":
-				return ec.fieldContext_Media_file_type(ctx, field)
-			case "caption":
-				return ec.fieldContext_Media_caption(ctx, field)
+			case "ipfs_cid":
+				return ec.fieldContext_Media_ipfs_cid(ctx, field)
+			case "extension":
+				return ec.fieldContext_Media_extension(ctx, field)
+			case "description":
+				return ec.fieldContext_Media_description(ctx, field)
 			case "tags":
 				return ec.fieldContext_Media_tags(ctx, field)
-			case "star":
-				return ec.fieldContext_Media_star(ctx, field)
-			case "pin":
-				return ec.fieldContext_Media_pin(ctx, field)
+			case "starred":
+				return ec.fieldContext_Media_starred(ctx, field)
+			case "pinned":
+				return ec.fieldContext_Media_pinned(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Media", field.Name)
 		},
@@ -890,7 +933,7 @@ func (ec *executionContext) fieldContext_Query_scan(ctx context.Context, field g
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_scan_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_search_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -2807,6 +2850,59 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** object.gotpl ****************************
 
+var libraryImplementors = []string{"Library"}
+
+func (ec *executionContext) _Library(ctx context.Context, sel ast.SelectionSet, obj *model.Library) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, libraryImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Library")
+		case "id":
+
+			out.Values[i] = ec._Library_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+
+			out.Values[i] = ec._Library_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "description":
+
+			out.Values[i] = ec._Library_description(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "motd":
+
+			out.Values[i] = ec._Library_motd(ctx, field, obj)
+
+		case "ipns_id":
+
+			out.Values[i] = ec._Library_ipns_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mediaImplementors = []string{"Media"}
 
 func (ec *executionContext) _Media(ctx context.Context, sel ast.SelectionSet, obj *model.Media) graphql.Marshaler {
@@ -2824,23 +2920,23 @@ func (ec *executionContext) _Media(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "cid":
+		case "ipfs_cid":
 
-			out.Values[i] = ec._Media_cid(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "file_type":
-
-			out.Values[i] = ec._Media_file_type(ctx, field, obj)
+			out.Values[i] = ec._Media_ipfs_cid(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "caption":
+		case "extension":
 
-			out.Values[i] = ec._Media_caption(ctx, field, obj)
+			out.Values[i] = ec._Media_extension(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "description":
+
+			out.Values[i] = ec._Media_description(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -2849,68 +2945,16 @@ func (ec *executionContext) _Media(ctx context.Context, sel ast.SelectionSet, ob
 
 			out.Values[i] = ec._Media_tags(ctx, field, obj)
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "star":
+		case "starred":
 
-			out.Values[i] = ec._Media_star(ctx, field, obj)
+			out.Values[i] = ec._Media_starred(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "pin":
+		case "pinned":
 
-			out.Values[i] = ec._Media_pin(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var originImplementors = []string{"Origin"}
-
-func (ec *executionContext) _Origin(ctx context.Context, sel ast.SelectionSet, obj *model.Origin) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, originImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Origin")
-		case "id":
-
-			out.Values[i] = ec._Origin_id(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "index_cid":
-
-			out.Values[i] = ec._Origin_index_cid(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "name":
-
-			out.Values[i] = ec._Origin_name(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "description":
-
-			out.Values[i] = ec._Origin_description(ctx, field, obj)
+			out.Values[i] = ec._Media_pinned(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -2945,7 +2989,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "scan":
+		case "search":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -2954,10 +2998,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_scan(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
+				res = ec._Query_search(ctx, field)
 				return res
 			}
 
@@ -3339,50 +3380,6 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) marshalNMedia2ᚕᚖgithubᚗcomᚋjaksonkallioᚋradiateᚋinternalᚋserviceᚋgraphᚋmodelᚐMediaᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Media) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNMedia2ᚖgithubᚗcomᚋjaksonkallioᚋradiateᚋinternalᚋserviceᚋgraphᚋmodelᚐMedia(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
 func (ec *executionContext) marshalNMedia2ᚖgithubᚗcomᚋjaksonkallioᚋradiateᚋinternalᚋserviceᚋgraphᚋmodelᚐMedia(ctx context.Context, sel ast.SelectionSet, v *model.Media) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -3406,38 +3403,6 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]string, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
-	}
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -3746,6 +3711,91 @@ func (ec *executionContext) marshalOID2ᚕstringᚄ(ctx context.Context, sel ast
 	ret := make(graphql.Array, len(v))
 	for i := range v {
 		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalOMedia2ᚕᚖgithubᚗcomᚋjaksonkallioᚋradiateᚋinternalᚋserviceᚋgraphᚋmodelᚐMediaᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Media) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNMedia2ᚖgithubᚗcomᚋjaksonkallioᚋradiateᚋinternalᚋserviceᚋgraphᚋmodelᚐMedia(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
 	}
 
 	for _, e := range ret {

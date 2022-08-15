@@ -6,7 +6,6 @@ type Library {
 	id: ID!
 	name: String!
 	description: String!
-	motd: String
 	ipns_id: String!
 }
 
@@ -15,11 +14,16 @@ type Media {
 	ipfs_cid: String!
 	extension: String!
 	description: String!
-	tags: [String!]!
+	tags: [String!]
 	starred: Boolean!
 	pinned: Boolean!
+	download_progress: 
 }
 
 type Query {
-  scan(origin_ids: [ID!], query: String!, only_starred: Boolean): [Media!]!
+  search(library_ids: [ID!], query: String!, only_starred: Boolean): [Media!]
+}
+
+type Mutation {
+	create_library()
 }

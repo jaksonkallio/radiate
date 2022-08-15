@@ -5,7 +5,8 @@ import (
 
 	"github.com/jaksonkallio/radiate/internal/media"
 	"github.com/jaksonkallio/radiate/internal/service"
-	"github.com/jaksonkallio/radiate/pkg/ipfs_client"
+
+	ipfsapi "github.com/ipfs/go-ipfs-api"
 )
 
 func main() {
@@ -15,10 +16,7 @@ func main() {
 	}
 
 	// TODO: make this host string configurable.
-	clientIPFS, err := ipfs_client.NewClientIPFS("localhost:5001")
-	if err != nil {
-		log.Fatalf("Could not create IPFS client: %s", err)
-	}
+	clientIPFS := ipfsapi.NewShell("localhost:5001")
 
 	service, err := service.NewService(clientIPFS)
 	if err != nil {

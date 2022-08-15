@@ -2,19 +2,20 @@
 
 package model
 
-type Media struct {
-	ID       string   `json:"id"`
-	Cid      string   `json:"cid"`
-	FileType string   `json:"file_type"`
-	Caption  string   `json:"caption"`
-	Tags     []string `json:"tags"`
-	Star     bool     `json:"star"`
-	Pin      bool     `json:"pin"`
+type Library struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Motd        *string `json:"motd"`
+	IpnsID      string  `json:"ipns_id"`
 }
 
-type Origin struct {
-	ID          string `json:"id"`
-	IndexCid    string `json:"index_cid"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+type Media struct {
+	ID          string   `json:"id"`
+	IpfsCid     string   `json:"ipfs_cid"`
+	Extension   string   `json:"extension"`
+	Description string   `json:"description"`
+	Tags        []string `json:"tags"`
+	Starred     bool     `json:"starred"`
+	Pinned      bool     `json:"pinned"`
 }

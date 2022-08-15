@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/jaksonkallio/radiate/pkg/ipfs_client"
+	ipfsapi "github.com/ipfs/go-ipfs-api"
 )
 
 func main() {
@@ -22,16 +22,22 @@ func main() {
 		}
 
 		log.Printf("Resolved path: %s", path)*/
+	/*
+		clientIPFS, err := ipfs_client.NewClientIPFS("localhost:5001")
+		if err != nil {
+			log.Fatalf("Could not create IPFS client: %s", err)
+		}
 
-	clientIPFS, err := ipfs_client.NewClientIPFS("localhost:5001")
+		versionResponse, err := clientIPFS.Version()
+		if err != nil {
+			log.Fatalf("Could not get version: %s", err)
+		}*/
+
+	// Where your local node is running on localhost:5001
+	clientIPFS := ipfsapi.NewShell("localhost:5001")
+
+	err := clientIPFS.Get("QmbBnZBudfuGbbzDRTAhSVEYsoxCAe5yBimuuYvYu3BMHG", "/Users/jak/code/radiate/cache/")
 	if err != nil {
-		log.Fatalf("Could not create IPFS client: %s", err)
+		log.Fatalf("err: %s", err)
 	}
-
-	versionResponse, err := clientIPFS.Version()
-	if err != nil {
-		log.Fatalf("Could not get version: %s", err)
-	}
-
-	log.Printf("%#v", versionResponse)
 }

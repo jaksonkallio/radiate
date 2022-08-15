@@ -11,8 +11,8 @@ import (
 	"github.com/jaksonkallio/radiate/internal/service/graph/model"
 )
 
-// Scan is the resolver for the scan field.
-func (r *queryResolver) Scan(ctx context.Context, originIds []string, query string, onlyStarred *bool) ([]*model.Media, error) {
+// Search is the resolver for the search field.
+func (r *queryResolver) Search(ctx context.Context, originIds []string, query string, onlyStarred *bool) ([]*model.Media, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
