@@ -10,6 +10,8 @@ import (
 )
 
 func main() {
+	service.InitLogger()
+
 	err := media.InitDatabaseConnection()
 	if err != nil {
 		log.Fatalf("Could not initialize database connection: %s", err)
@@ -18,7 +20,7 @@ func main() {
 	// TODO: make this host string configurable.
 	clientIPFS := ipfsapi.NewShell("localhost:5001")
 
-	service, err := service.NewService(clientIPFS)
+	serviceInstance, err := service.NewService(clientIPFS)
 	if err != nil {
 		log.Fatalf("Could not start service: %s", err)
 	}

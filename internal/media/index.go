@@ -5,25 +5,30 @@ import (
 	"time"
 )
 
-// An "index" is a serialized representation of a library and all of the media it contains.
+// LibraryIndex is a serialized representation of a library and all the media it contains.
+// Keep in mind that we can't fully "trust" the data in this file, because it's arbitrarily constructed by the library maintainer.
 type LibraryIndex struct {
-	SchemaVersion int                `json:"schema_version"`
-	Info          LibraryIndexInfo   `json:"info"`
-	Items         []LibraryIndexItem `json:"items"`
+	SchemaVersion int                 `json:"schema_version"`
+	Info          LibraryIndexInfo    `json:"info"`
+	Items         []LibraryIndexMedia `json:"media"`
 }
 
-// Meta info about the library.
+// LibraryIndexInfo is meta info about the library.
 type LibraryIndexInfo struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	MOTD        string `json:"motd"`
+	Title            string    `json:"title"`
+	Description      string    `json:"description"`
+	IPFSCID          string    `json:"ipfs_cid"`
+	MOTD             string    `json:"motd"`
+	LastChangedMOTD  time.Time `json:"last_changed_motd"`
+	LastChangedMedia time.Time `json:"last_changed_media"`
 }
 
-type LibraryIndexItem struct {
-	Extension   string    `json:"extension"`
-	IPFSCID     string    `json:"ipfs_cid"`
-	Description string    `json:"description"`
-	DateAdded   time.Time `json:"date_added"`
+type LibraryIndexMedia struct {
+	Title         string    `json:"title"`
+	FileExtension string    `json:"file_extension"`
+	IPFSCID       string    `json:"ipfs_cid"`
+	Description   string    `json:"description"`
+	DateAdded     time.Time `json:"date_added"`
 }
 
 func ParseLibraryIndexFile(indexFileBytes []byte) (LibraryIndex, error) {

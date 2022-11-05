@@ -4,7 +4,7 @@
 package service
 
 import (
-	"log"
+	"github.com/rs/zerolog/log"
 	"net/http"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -15,8 +15,6 @@ import (
 
 	ipfsapi "github.com/ipfs/go-ipfs-api"
 )
-
-var ServerSideRenderedBundle = ""
 
 type Service struct {
 	gin       *gin.Engine
@@ -35,7 +33,7 @@ func NewService(clientIPFS *ipfsapi.Shell) (*Service, error) {
 }
 
 func (service *Service) Init() error {
-	log.Println("Initializing service")
+	log.Info().Msg("Initializing service")
 
 	service.gin = gin.Default()
 
@@ -52,7 +50,10 @@ func (service *Service) Init() error {
 }
 
 func (service *Service) Serve() {
-	http.ListenAndServe(":5011", service.gin)
+	err := http.ListenAndServe(":5011", service.gin)
+	if err != nil {
+		log.Error().Err(err).Msg("listen and serve failed")
+	}
 }
 
 // Defining the Graphql handler.
