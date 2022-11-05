@@ -1,6 +1,7 @@
 package media
 
 import (
+	"database/sql/driver"
 	"fmt"
 	"strings"
 )
@@ -16,7 +17,7 @@ const (
 type IdentifierType string
 
 type IndexIdentifier struct {
-	Value string
+	ValueString string
 }
 
 func DetermineIdentifierType(identifier string) IdentifierType {
@@ -35,21 +36,36 @@ func DetermineIdentifierType(identifier string) IdentifierType {
 	return IdentifierTypeUnknown
 }
 
-func (indexIdentifier IndexIdentifier) Type() IdentifierType {
-	return DetermineIdentifierType(indexIdentifier.Value)
+func (indexIdentifier *IndexIdentifier) IdentifierType() IdentifierType {
+	return DetermineIdentifierType(indexIdentifier.ValueString)
 }
 
-func (identifierType IdentifierType) String() string {
-	return string(identifierType)
+func (identifierType *IdentifierType) String() string {
+	return string(*identifierType)
 }
 
-func (indexIdentifier IndexIdentifier) ResolveToCID() (CID, error) {
-	indexIdentifierType := indexIdentifier.Type()
+func (indexIdentifier *IndexIdentifier) ResolveToCID() (CID, error) {
+	indexIdentifierType := indexIdentifier.IdentifierType()
 
 	switch indexIdentifierType {
 	case IdentifierTypeCID:
-		return CID(indexIdentifier.Value), nil
+		return CID(indexIdentifier.ValueString), nil
 	default:
 		return CIDBlank, fmt.Errorf("resolving identifier type %q to a CID is not yet supported", indexIdentifierType)
 	}
+}
+
+func (indexIdentifier *IndexIdentifier) Scan(value interface{}) error {
+	b, ok := value.([]byte)
+	if !ok {
+		return fmt.Errorf("could not convert value to byte slice")
+	}
+
+	indexIdentifier.ValueString = string(b)
+
+	return nil
+}
+
+func (indexIdentifier *IndexIdentifier) Value() (driver.Value, error) {
+	return indexIdentifier.ValueString, nil
 }

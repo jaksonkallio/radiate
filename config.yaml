@@ -1,0 +1,5 @@
+min_log_level: debug
+pretty_print_logs: true
+cache_dir: /Users/jak/code/radiate/cache
+ipfs_host: localhost:5001
+api_host: localhost:5011

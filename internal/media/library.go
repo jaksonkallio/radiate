@@ -1,6 +1,7 @@
 package media
 
 import (
+	shell "github.com/ipfs/go-ipfs-api"
 	"time"
 
 	"gorm.io/gorm"
@@ -8,19 +9,20 @@ import (
 
 type Library struct {
 	gorm.Model
-	Title           string    `gorm:"title"`
-	Description     string    `gorm:"description"`
-	MOTD            string    `gorm:"motd"`
-	IndexIdentifier string    `gorm:"index_identifier"`
-	IndexCID        CID       `gorm:"index_ipfs_cid"`
-	InitialIngest   bool      `gorm:"initial_ingest"`
-	LastIngested    time.Time `gorm:"last_ingested"`
-	LastUpdated     time.Time `gorm:"last_updated"`
+	Title           string          `gorm:"title"`
+	Description     string          `gorm:"description"`
+	MOTD            string          `gorm:"motd"`
+	IndexIdentifier IndexIdentifier `gorm:"index_identifier"`
+	InitialIngest   bool            `gorm:"initial_ingest"`
+	IngestedAt      int             `gorm:"ingested_at"`
+	MediaUpdatedAt  time.Time       `gorm:"last_updated"`
 }
 
-// Re-ingests a library, updated the "last updated" time if anything has changed.
-func (library *Library) Ingest() {
+// Ingest will re-ingest a library, updated the "last updated" time if anything has changed.
+func (library *Library) Ingest(shellIPFS *shell.Shell) {
+	//indexCID, _ := library.IndexIdentifier.ResolveToCID()
 
+	//shellIPFS.Get(indexCID, "")
 }
 
 func (library *Library) FetchIndex() (*LibraryIndex, error) {

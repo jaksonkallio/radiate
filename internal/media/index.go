@@ -2,7 +2,6 @@ package media
 
 import (
 	"encoding/json"
-	"time"
 )
 
 // LibraryIndex is a serialized representation of a library and all the media it contains.
@@ -10,25 +9,28 @@ import (
 type LibraryIndex struct {
 	SchemaVersion int                 `json:"schema_version"`
 	Info          LibraryIndexInfo    `json:"info"`
+	Announcement  LibraryAnnouncement `json:"announcement"`
 	Items         []LibraryIndexMedia `json:"media"`
 }
 
 // LibraryIndexInfo is meta info about the library.
 type LibraryIndexInfo struct {
-	Title            string    `json:"title"`
-	Description      string    `json:"description"`
-	IPFSCID          string    `json:"ipfs_cid"`
-	MOTD             string    `json:"motd"`
-	LastChangedMOTD  time.Time `json:"last_changed_motd"`
-	LastChangedMedia time.Time `json:"last_changed_media"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+type LibraryAnnouncement struct {
+	Text      string `json:"text"`
+	UpdatedAt int    `json:"updated_at"`
 }
 
 type LibraryIndexMedia struct {
-	Title         string    `json:"title"`
-	FileExtension string    `json:"file_extension"`
-	IPFSCID       string    `json:"ipfs_cid"`
-	Description   string    `json:"description"`
-	DateAdded     time.Time `json:"date_added"`
+	Title         string `json:"title"`
+	Size          int    `json:"size"`
+	FileExtension string `json:"file_extension"`
+	CID           CID    `json:"cid"`
+	Description   string `json:"description"`
+	AddedAt       int    `json:"added_at"`
 }
 
 func ParseLibraryIndexFile(indexFileBytes []byte) (LibraryIndex, error) {

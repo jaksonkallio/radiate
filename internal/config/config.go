@@ -8,16 +8,12 @@ import (
 
 var CurrentConfig Config
 
-type Environment string
-
-const (
-	EnvironmentDev Environment = "dev"
-	EnvironmentPrd Environment = "prd"
-)
-
 type Config struct {
-	MinLogLevel zerolog.Level
-	Environment Environment
+	MinLogLevel     zerolog.Level `yaml:"min_log_level"`
+	CacheDir        string        `yaml:"cache_dir"`
+	IPFSHost        string        `yaml:"ipfs_host"`
+	APIHost         string        `yaml:"api_host"`
+	PrettyPrintLogs bool          `yaml:"pretty_print_logs"`
 }
 
 func LoadFromFile() error {
@@ -37,8 +33,4 @@ func LoadFromFile() error {
 	CurrentConfig = config
 
 	return nil
-}
-
-func (config Config) IsDev() bool {
-	return config.Environment == EnvironmentDev
 }

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "info": {
+    "title": "Cool Animal Pictures",
+    "description": "A bunch of pictures of animals."
+  },
+  "announcement": {
+    "text": "Getting some complaints about the elephant picture... I'll upload a new one this Friday.",
+    "updated_at": 1667679252
+  },
+  "items": [
+    {
+      "title": "Elephant",
+      "size": 0,
+      "file_extension": "jpg",
+      "cid": "QmUzSyZWtYESw7PsuVyGcGVwMAVyHDgUahQi2dTNG6uegR",
+      "description": "",
+      "added_at": 1667420052
+    },
+    {
+      "title": "Panda",
+      "size": 0,
+      "file_extension": "jpg",
+      "cid": "QmXFAdQirEunUySCn6RDCYTWwmc4ZAJTXJKW7dPCCVvCtF",
+      "description": "",
+      "added_at": 1667333652
+    },
+    {
+      "title": "Wolf",
+      "size": 0,
+      "file_extension": "jpg",
+      "cid": "QmPtvMvEkA33BtZVEwfsBZJphHm9SFrbNj2NDywyNNxD8V",
+      "description": "",
+      "added_at": 1665951252
+    }
+  ]
+}

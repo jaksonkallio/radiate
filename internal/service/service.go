@@ -1,17 +1,14 @@
-// Service logic.
-//
-// Credit to https://gqlgen.com/recipes/gin/ for the handler functions.
 package service
 
 import (
-	"github.com/rs/zerolog/log"
-	"net/http"
-
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
+	"github.com/jaksonkallio/radiate/internal/config"
 	"github.com/jaksonkallio/radiate/internal/service/graph"
 	"github.com/jaksonkallio/radiate/internal/service/graph/generated"
+	"github.com/rs/zerolog/log"
+	"net/http"
 
 	ipfsapi "github.com/ipfs/go-ipfs-api"
 )
@@ -21,10 +18,10 @@ type Service struct {
 	shellIPFS *ipfsapi.Shell
 }
 
-func NewService(clientIPFS *ipfsapi.Shell) (*Service, error) {
+func NewService() (*Service, error) {
 	service := &Service{}
-	err := service.Init()
 
+	err := service.Init()
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +30,25 @@ func NewService(clientIPFS *ipfsapi.Shell) (*Service, error) {
 }
 
 func (service *Service) Init() error {
-	log.Info().Msg("Initializing service")
+	service.initHandlers()
+
+	// Create IPFS shell.
+	log.Info().Msg("initializing IPFS shell")
+	service.shellIPFS = ipfsapi.NewShell(config.CurrentConfig.IPFSHost)
+
+	// Report IPFS shell status.
+	version, commitSHA, err := service.shellIPFS.Version()
+	log.Info().
+		Bool("connected", err != nil).
+		Str("ipfs_version", version).
+		Str("ipfs_commit", commitSHA).
+		Msg("IPFS status")
+
+	return nil
+}
+
+func (service *Service) initHandlers() {
+	log.Info().Msg("initializing service handlers")
 
 	service.gin = gin.Default()
 
@@ -45,12 +60,14 @@ func (service *Service) Init() error {
 
 	service.gin.POST("/query", graphqlHandler())
 	service.gin.GET("/playground", playgroundHandler())
-
-	return nil
 }
 
-func (service *Service) Serve() {
-	err := http.ListenAndServe(":5011", service.gin)
+func (service *Service) ServeAPI() {
+	log.Info().
+		Str("api_host", config.CurrentConfig.APIHost).
+		Msg("serving API")
+
+	err := http.ListenAndServe(config.CurrentConfig.APIHost, service.gin)
 	if err != nil {
 		log.Error().Err(err).Msg("listen and serve failed")
 	}
