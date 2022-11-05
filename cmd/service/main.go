@@ -35,5 +35,7 @@ func main() {
 			Msg("could not start service")
 	}
 
-	serviceInstance.ServeAPI()
+	go serviceInstance.ServeAPI()
+
+	StartInteractiveCLI(serviceInstance)
 }

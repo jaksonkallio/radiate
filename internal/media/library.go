@@ -2,6 +2,9 @@ package media
 
 import (
 	shell "github.com/ipfs/go-ipfs-api"
+	"github.com/jaksonkallio/radiate/internal/config"
+	"github.com/pkg/errors"
+	"path"
 	"time"
 
 	"gorm.io/gorm"
@@ -9,20 +12,29 @@ import (
 
 type Library struct {
 	gorm.Model
-	Title           string          `gorm:"title"`
-	Description     string          `gorm:"description"`
-	MOTD            string          `gorm:"motd"`
-	IndexIdentifier IndexIdentifier `gorm:"index_identifier"`
-	InitialIngest   bool            `gorm:"initial_ingest"`
-	IngestedAt      int             `gorm:"ingested_at"`
-	MediaUpdatedAt  time.Time       `gorm:"last_updated"`
+	UniqueIdentifier string          `gorm:"unique_identifier"`
+	Title            string          `gorm:"title"`
+	Description      string          `gorm:"description"`
+	MOTD             string          `gorm:"motd"`
+	IndexIdentifier  IndexIdentifier `gorm:"index_identifier"`
+	InitialIngest    bool            `gorm:"initial_ingest"`
+	IngestedAt       int             `gorm:"ingested_at"`
+	MediaUpdatedAt   time.Time       `gorm:"last_updated"`
 }
 
 // Ingest will re-ingest a library, updated the "last updated" time if anything has changed.
-func (library *Library) Ingest(shellIPFS *shell.Shell) {
-	//indexCID, _ := library.IndexIdentifier.ResolveToCID()
+func (library *Library) Ingest(shellIPFS *shell.Shell) error {
+	indexCID, err := library.IndexIdentifier.ResolveToCID()
+	if err != nil {
+		return errors.Wrap(err, "could not resolve CID")
+	}
 
-	//shellIPFS.Get(indexCID, "")
+	err = shellIPFS.Get(indexCID.String(), path.Join(config.CurrentConfig.CacheDir, "library_index", "testname"))
+	if err != nil {
+		return errors.Wrap(err, "get library index file failed")
+	}
+
+	return nil
 }
 
 func (library *Library) FetchIndex() (*LibraryIndex, error) {

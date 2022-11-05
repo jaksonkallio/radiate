@@ -6,6 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.13
 	github.com/gin-gonic/gin v1.8.1
 	github.com/ipfs/go-ipfs-api v0.3.0
+	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.28.0
 	github.com/vektah/gqlparser/v2 v2.4.6
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
