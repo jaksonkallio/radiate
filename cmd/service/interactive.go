@@ -10,24 +10,21 @@ import (
 )
 
 type Command struct {
-	Verb      string
-	Noun      string
+	Name      string
 	Arguments []string
 	Fn        func(args map[string]string) error
 }
 
 var Commands = []Command{
 	{
-		Verb: "list",
-		Noun: "library",
+		Name: "library/list",
 		Fn: func(args map[string]string) error {
 			fmt.Printf("listing libraries now :)\n")
 			return nil
 		},
 	},
 	{
-		Verb: "add",
-		Noun: "library",
+		Name: "library/add",
 		Arguments: []string{
 			"identifier",
 		},
@@ -41,11 +38,6 @@ var Commands = []Command{
 var ExitKeywords = []string{
 	"exit",
 	"quit",
-	"escape",
-	"leave",
-	"done",
-	"goodbye",
-	"bye",
 	"close",
 }
 
@@ -75,19 +67,19 @@ func StartInteractiveCLI(service *service.Service) {
 
 		inputStrParts := strings.Split(inputStr, " ")
 
-		if len(inputStrParts) < 2 {
+		if len(inputStrParts) < 1 {
 			log.Warn().
 				Str("input", inputStr).
-				Msg("format \"noun verb [arg1 [arg2 [arg3 ...]]]\" expected")
+				Msg("format \"command [arg1 arg2...]\" expected")
 			continue
 		}
 
 		var commandExists bool
 
 		for _, command := range Commands {
-			if strings.ToLower(inputStrParts[0]) == command.Noun && strings.ToLower(inputStrParts[1]) == command.Verb {
+			if strings.ToLower(inputStrParts[0]) == command.Name {
 				commandExists = true
-				args := inputStrParts[2:]
+				args := inputStrParts[1:]
 
 				if len(command.Arguments) != len(args) {
 					log.Warn().
