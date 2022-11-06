@@ -15,7 +15,7 @@ import (
 
 type Service struct {
 	gin       *gin.Engine
-	shellIPFS *ipfsapi.Shell
+	ShellIPFS *ipfsapi.Shell
 }
 
 func NewService() (*Service, error) {
@@ -34,10 +34,10 @@ func (service *Service) Init() error {
 
 	// Create IPFS shell.
 	log.Info().Msg("initializing IPFS shell")
-	service.shellIPFS = ipfsapi.NewShell(config.CurrentConfig.IPFSHost)
+	service.ShellIPFS = ipfsapi.NewShell(config.CurrentConfig.IPFSHost)
 
 	// Report IPFS shell status.
-	version, commitSHA, err := service.shellIPFS.Version()
+	version, commitSHA, err := service.ShellIPFS.Version()
 	log.Info().
 		Bool("connected", err != nil).
 		Str("ipfs_version", version).

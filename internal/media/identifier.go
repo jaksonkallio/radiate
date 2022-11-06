@@ -20,6 +20,12 @@ type IndexIdentifier struct {
 	ValueString string
 }
 
+func NewIndexIdentifierFromString(valueString string) IndexIdentifier {
+	return IndexIdentifier{
+		ValueString: valueString,
+	}
+}
+
 func DetermineIdentifierType(identifier string) IdentifierType {
 	if strings.Contains(identifier, ".") {
 		if strings.HasSuffix(identifier, ".eth") {
@@ -56,16 +62,16 @@ func (indexIdentifier *IndexIdentifier) ResolveToCID() (CID, error) {
 }
 
 func (indexIdentifier *IndexIdentifier) Scan(value interface{}) error {
-	b, ok := value.([]byte)
+	valueString, ok := value.(string)
 	if !ok {
-		return fmt.Errorf("could not convert value to byte slice")
+		return fmt.Errorf("could not convert column value to string")
 	}
 
-	indexIdentifier.ValueString = string(b)
+	indexIdentifier.ValueString = valueString
 
 	return nil
 }
 
-func (indexIdentifier *IndexIdentifier) Value() (driver.Value, error) {
+func (indexIdentifier IndexIdentifier) Value() (driver.Value, error) {
 	return indexIdentifier.ValueString, nil
 }

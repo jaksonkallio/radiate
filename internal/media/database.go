@@ -12,12 +12,13 @@ var DatabaseConn *gorm.DB
 
 var DatabaseModels = []interface{}{
 	&Library{},
+	&Item{},
 }
 
 func InitDatabaseConnection() error {
 	log.Info().Msg("initializing database connection")
 
-	databaseConnection, err := gorm.Open(sqlite.Open("../data.db"), &gorm.Config{})
+	databaseConnection, err := gorm.Open(sqlite.Open("./data.db"), &gorm.Config{})
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %s", err)
 	}

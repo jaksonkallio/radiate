@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"github.com/jaksonkallio/radiate/internal/service"
 	"github.com/rs/zerolog/log"
 	"os"
@@ -12,27 +11,7 @@ import (
 type Command struct {
 	Name      string
 	Arguments []string
-	Fn        func(args map[string]string) error
-}
-
-var Commands = []Command{
-	{
-		Name: "library/list",
-		Fn: func(args map[string]string) error {
-			fmt.Printf("listing libraries now :)\n")
-			return nil
-		},
-	},
-	{
-		Name: "library/add",
-		Arguments: []string{
-			"identifier",
-		},
-		Fn: func(args map[string]string) error {
-			fmt.Printf("listing libraries now :) provided args: %#v\n", args)
-			return nil
-		},
-	},
+	Fn        func(service *service.Service, args map[string]string) error
 }
 
 var ExitKeywords = []string{
@@ -95,7 +74,7 @@ func StartInteractiveCLI(service *service.Service) {
 				}
 
 				go func() {
-					err := command.Fn(argMap)
+					err := command.Fn(service, argMap)
 					if err != nil {
 						log.Error().
 							Err(err).
